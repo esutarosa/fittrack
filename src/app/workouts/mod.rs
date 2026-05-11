@@ -22,7 +22,6 @@ pub struct WorkoutsState {
     pub(crate) editing_set_id: Option<i64>,
     pub(crate) title: String,
     pub(crate) workout_date: String,
-    pub(crate) notes: String,
     pub(crate) selected_exercise_id: Option<i64>,
     pub(crate) weight: String,
     pub(crate) repetitions: String,
@@ -41,7 +40,6 @@ impl Default for WorkoutsState {
             editing_set_id: None,
             title: String::new(),
             workout_date: Local::now().date_naive().format("%Y-%m-%d").to_string(),
-            notes: String::new(),
             selected_exercise_id: None,
             weight: String::new(),
             repetitions: String::new(),
@@ -86,7 +84,6 @@ impl WorkoutsState {
         self.editing_workout_id = Some(workout.id);
         self.title = workout.title.clone();
         self.workout_date = workout.workout_date.clone();
-        self.notes = workout.notes.clone().unwrap_or_default();
     }
 
     pub(crate) fn delete_workout(
@@ -150,20 +147,9 @@ impl WorkoutsState {
         }
 
         let result = if let Some(workout_id) = self.editing_workout_id {
-            client.update_workout(
-                &session.token,
-                workout_id,
-                title,
-                self.workout_date.trim(),
-                trimmed_option(&self.notes),
-            )
+            client.update_workout(&session.token, workout_id, title, self.workout_date.trim())
         } else {
-            client.create_workout(
-                &session.token,
-                title,
-                self.workout_date.trim(),
-                trimmed_option(&self.notes),
-            )
+            client.create_workout(&session.token, title, self.workout_date.trim())
         };
 
         match result {
@@ -186,11 +172,5 @@ impl WorkoutsState {
         self.editing_workout_id = None;
         self.title.clear();
         self.workout_date = Local::now().date_naive().format("%Y-%m-%d").to_string();
-        self.notes.clear();
     }
-}
-
-fn trimmed_option(value: &str) -> Option<&str> {
-    let value = value.trim();
-    if value.is_empty() { None } else { Some(value) }
 }

@@ -1,6 +1,7 @@
 use eframe::egui::{ComboBox, RichText, Ui};
 
 use crate::app::auth::{AuthClient, Session};
+use crate::app::exercises::copy::muscle_group_label;
 use crate::app::exercises::{ExercisesCopy, ExercisesState, MUSCLE_GROUPS};
 use crate::shared::i18n::AppLanguage;
 use crate::shared::ui as theme;
@@ -22,10 +23,14 @@ pub(super) fn render_form(
         ui.add_space(8.0);
         theme::field_label(ui, copy.group_label);
         ComboBox::from_id_salt("exercise_muscle_group")
-            .selected_text(MUSCLE_GROUPS[state.selected_group])
+            .selected_text(muscle_group_label(language, MUSCLE_GROUPS[state.selected_group]))
             .show_ui(ui, |ui| {
                 for (index, group) in MUSCLE_GROUPS.iter().enumerate() {
-                    ui.selectable_value(&mut state.selected_group, index, *group);
+                    ui.selectable_value(
+                        &mut state.selected_group,
+                        index,
+                        muscle_group_label(language, group),
+                    );
                 }
             });
         ui.add_space(layout.section_gap);

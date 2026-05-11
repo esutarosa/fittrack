@@ -13,8 +13,7 @@ pub(super) struct ExercisesCopy {
     pub refresh_button: &'static str,
     pub edit_button: &'static str,
     pub delete_button: &'static str,
-    pub name_column: &'static str,
-    pub group_column: &'static str,
+    pub exercise_column: &'static str,
     pub actions_column: &'static str,
     pub empty_state: &'static str,
     pub name_required: &'static str,
@@ -37,8 +36,7 @@ pub(super) fn copy(language: AppLanguage) -> ExercisesCopy {
             refresh_button: "Refresh",
             edit_button: "Edit",
             delete_button: "Delete",
-            name_column: "Name",
-            group_column: "Group",
+            exercise_column: "Exercise",
             actions_column: "Actions",
             empty_state: "No exercises yet.",
             name_required: "Exercise name is required",
@@ -58,8 +56,7 @@ pub(super) fn copy(language: AppLanguage) -> ExercisesCopy {
             refresh_button: "Оновити",
             edit_button: "Редагувати",
             delete_button: "Видалити",
-            name_column: "Назва",
-            group_column: "Група",
+            exercise_column: "Вправа",
             actions_column: "Дії",
             empty_state: "Вправ поки немає.",
             name_required: "Потрібно вказати назву вправи",
@@ -67,5 +64,27 @@ pub(super) fn copy(language: AppLanguage) -> ExercisesCopy {
             updated_message: "Вправу оновлено",
             deleted_message: "Вправу видалено",
         },
+    }
+}
+
+pub(super) fn muscle_group_label(language: AppLanguage, muscle_group: &str) -> &'static str {
+    match (language, muscle_group) {
+        (AppLanguage::English, "Chest") => "Chest",
+        (AppLanguage::English, "Back") => "Back",
+        (AppLanguage::English, "Legs") => "Legs",
+        (AppLanguage::English, "Shoulders") => "Shoulders",
+        (AppLanguage::English, "Arms") => "Arms",
+        (AppLanguage::English, "Core") => "Core",
+        (AppLanguage::English, "Glutes") => "Glutes",
+        (AppLanguage::English, "Full Body") => "Full Body",
+        (AppLanguage::Ukrainian, "Chest") => "Груди",
+        (AppLanguage::Ukrainian, "Back") => "Спина",
+        (AppLanguage::Ukrainian, "Legs") => "Ноги",
+        (AppLanguage::Ukrainian, "Shoulders") => "Плечі",
+        (AppLanguage::Ukrainian, "Arms") => "Руки",
+        (AppLanguage::Ukrainian, "Core") => "Кор",
+        (AppLanguage::Ukrainian, "Glutes") => "Сідниці",
+        (AppLanguage::Ukrainian, "Full Body") => "Все тіло",
+        _ => "Unknown",
     }
 }

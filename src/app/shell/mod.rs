@@ -2,7 +2,7 @@ mod dashboard;
 mod strings;
 
 use dashboard::{render_dashboard, render_header};
-use eframe::egui::{Button, CentralPanel, Context, RichText, SidePanel, Ui, vec2};
+use eframe::egui::{Align, Button, CentralPanel, Context, Layout, RichText, SidePanel, Ui, vec2};
 
 use crate::app::auth::{AuthClient, Session};
 use crate::app::exercises::ExercisesState;
@@ -53,29 +53,46 @@ pub fn render_shell(
         });
 
     CentralPanel::default().frame(theme::page_frame()).show(ctx, |ui| {
-        ui.vertical(|ui| {
+        let content_width = (ui.available_width() - layout.page_padding * 2.0).max(0.0);
+        ui.horizontal(|ui| {
             ui.add_space(layout.page_padding);
-            render_header(ui, *active_screen, *language, colors);
-            ui.add_space(layout.section_gap);
+            ui.allocate_ui_with_layout(
+                vec2(content_width, ui.available_height()),
+                Layout::top_down(Align::Min),
+                |ui| {
+                    ui.add_space(layout.page_padding);
+                    render_header(ui, *active_screen, *language, colors);
+                    ui.add_space(layout.section_gap);
 
-            match active_screen {
-                Screen::Dashboard => render_dashboard(
-                    ui,
-                    *language,
-                    exercises_state.items().len(),
-                    workouts_state.workout_count(),
-                    progress_state.record_count(),
-                    colors,
-                    layout,
-                ),
-                Screen::Exercises => exercises_state.render(ui, client, session, *language),
-                Screen::Workouts => {
-                    workouts_state.render(ui, client, session, exercises_state.items(), *language)
-                }
-                Screen::Progress => {
-                    progress_state.render(ui, client, session, exercises_state.items(), *language)
-                }
-            }
+                    match active_screen {
+                        Screen::Dashboard => render_dashboard(
+                            ui,
+                            *language,
+                            exercises_state.items().len(),
+                            workouts_state.workout_count(),
+                            progress_state.record_count(),
+                            colors,
+                            layout,
+                        ),
+                        Screen::Exercises => exercises_state.render(ui, client, session, *language),
+                        Screen::Workouts => workouts_state.render(
+                            ui,
+                            client,
+                            session,
+                            exercises_state.items(),
+                            *language,
+                        ),
+                        Screen::Progress => progress_state.render(
+                            ui,
+                            client,
+                            session,
+                            exercises_state.items(),
+                            *language,
+                        ),
+                    }
+                },
+            );
+            ui.add_space(layout.page_padding);
         });
     });
 
@@ -93,9 +110,13 @@ fn render_sidebar(
     let mut logout_clicked = false;
     ui.vertical(|ui| {
         ui.add_space(4.0);
-        ui.with_layout(eframe::egui::Layout::right_to_left(eframe::egui::Align::Center), |ui| {
-            theme::language_toggle(ui, language, layout)
+        ui.horizontal(|ui| {
+            ui.with_layout(
+                eframe::egui::Layout::right_to_left(eframe::egui::Align::Center),
+                |ui| theme::language_toggle(ui, language),
+            );
         });
+        ui.add_space(12.0);
         ui.label(RichText::new("FitTrack").size(24.0).strong());
         ui.label(
             RichText::new(strings::app_tagline(*language)).size(13.0).color(colors.text_muted),

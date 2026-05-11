@@ -24,9 +24,6 @@ pub(super) fn render_workout_form(
         ui.add_space(8.0);
         theme::field_label(ui, copy.date_label);
         theme::singleline(ui, &mut state.workout_date);
-        ui.add_space(8.0);
-        theme::field_label(ui, copy.notes_label);
-        theme::multiline(ui, &mut state.notes, 3);
         ui.add_space(layout.section_gap);
 
         let primary = if state.editing_workout_id.is_some() {
