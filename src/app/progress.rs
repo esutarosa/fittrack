@@ -71,23 +71,26 @@ impl ProgressState {
                 return;
             }
 
-            Grid::new("progress_grid").striped(true).show(ui, |ui| {
-                ui.label(RichText::new(copy.date_column).strong());
-                ui.label(RichText::new(copy.workout_column).strong());
-                ui.label(RichText::new(copy.weight_column).strong());
-                ui.label(RichText::new(copy.reps_column).strong());
-                ui.label(RichText::new(copy.volume_column).strong());
-                ui.end_row();
-
-                for item in &self.items {
-                    ui.label(&item.workout_date);
-                    ui.label(&item.workout_title);
-                    ui.label(format!("{:.1}", item.max_weight));
-                    ui.label(item.max_repetitions.to_string());
-                    ui.label(format!("{:.1}", item.total_volume));
+            Grid::new("progress_grid")
+                .striped(true)
+                .spacing(vec2(24.0, ui.spacing().item_spacing.y))
+                .show(ui, |ui| {
+                    ui.label(RichText::new(copy.date_column).strong());
+                    ui.label(RichText::new(copy.workout_column).strong());
+                    ui.label(RichText::new(copy.weight_column).strong());
+                    ui.label(RichText::new(copy.reps_column).strong());
+                    ui.label(RichText::new(copy.volume_column).strong());
                     ui.end_row();
-                }
-            });
+
+                    for item in &self.items {
+                        ui.label(&item.workout_date);
+                        ui.label(&item.workout_title);
+                        ui.label(format!("{:.1}", item.max_weight));
+                        ui.label(item.max_repetitions.to_string());
+                        ui.label(format!("{:.1}", item.total_volume));
+                        ui.end_row();
+                    }
+                });
         });
     }
 

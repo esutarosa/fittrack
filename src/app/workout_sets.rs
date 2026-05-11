@@ -1,8 +1,10 @@
 mod actions;
+mod list;
 
-use eframe::egui::{ComboBox, Grid, RichText, Ui};
+use eframe::egui::{ComboBox, RichText, Ui};
 
-use self::actions::{delete_set, save_set};
+use self::actions::save_set;
+use self::list::render_sets_list;
 use crate::app::auth::{AuthClient, Session};
 use crate::app::workouts::{WorkoutsCopy, WorkoutsState};
 use crate::shared::contracts::ExerciseDto;
@@ -88,9 +90,11 @@ pub fn render_workout_details(
                 }
             });
         ui.add_space(8.0);
-        theme::singleline_hint(ui, &mut state.weight, copy.weight_hint);
+        theme::field_label(ui, copy.weight_label);
+        theme::singleline(ui, &mut state.weight);
         ui.add_space(8.0);
-        theme::singleline_hint(ui, &mut state.repetitions, copy.reps_hint);
+        theme::field_label(ui, copy.reps_label);
+        theme::singleline(ui, &mut state.repetitions);
         ui.add_space(8.0);
 
         let primary = if state.editing_set_id.is_some() {
@@ -130,35 +134,7 @@ pub fn render_workout_details(
             return;
         }
 
-        Grid::new("workout_set_grid").striped(true).show(ui, |ui| {
-            ui.label("#");
-            ui.label(copy.exercise_column);
-            ui.label(copy.weight_column);
-            ui.label(copy.reps_column);
-            ui.label(copy.actions_column);
-            ui.end_row();
-
-            for set in state.sets.clone() {
-                ui.push_id(set.id, |ui| {
-                    ui.label(set.set_order.to_string());
-                    ui.label(&set.exercise_name);
-                    ui.label(format!("{:.1}", set.weight));
-                    ui.label(set.repetitions.to_string());
-                    ui.horizontal(|ui| {
-                        if ui.small_button(copy.edit_button).clicked() {
-                            state.editing_set_id = Some(set.id);
-                            state.selected_exercise_id = Some(set.exercise_id);
-                            state.weight = format!("{:.1}", set.weight);
-                            state.repetitions = set.repetitions.to_string();
-                        }
-                        if ui.small_button(copy.delete_button).clicked() {
-                            delete_set(state, client, session, set.id, copy.set_deleted);
-                        }
-                    });
-                    ui.end_row();
-                });
-            }
-        });
+        render_sets_list(ui, state, client, session, copy);
     });
 }
 
