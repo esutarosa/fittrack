@@ -1,29 +1,35 @@
 use eframe::egui::{self, Button, Panel, RichText, Ui, vec2};
 
 use crate::app::screen::Screen;
+use crate::app::models::User;
 use crate::shared::ui as theme;
 
-pub fn render_shell(ui: &mut Ui, active_screen: &mut Screen) {
+pub fn render_shell(ui: &mut Ui, active_screen: &mut Screen, user: &User) -> bool {
     let colors = theme::semantic_colors();
     let tokens = theme::tokens();
-
-    Panel::left("fittrack_sidebar")
+    let logout_clicked = Panel::left("fittrack_sidebar")
         .exact_size(tokens.sidebar_width)
         .resizable(false)
         .frame(theme::sidebar_frame())
-        .show_inside(ui, |ui| render_sidebar(ui, active_screen, colors, tokens));
+        .show_inside(ui, |ui| render_sidebar(ui, active_screen, user, colors, tokens))
+        .inner;
 
     egui::CentralPanel::default()
         .frame(theme::page_frame())
         .show_inside(ui, |ui| render_main(ui, *active_screen, colors, tokens));
+
+    logout_clicked
 }
 
 fn render_sidebar(
     ui: &mut Ui,
     active_screen: &mut Screen,
+    user: &User,
     colors: theme::SemanticColors,
     tokens: theme::UiTokens,
-) {
+) -> bool {
+    let mut logout_clicked = false;
+
     ui.vertical(|ui| {
         ui.add_space(4.0);
         ui.label(RichText::new("FitTrack").size(24.0).strong());
@@ -43,7 +49,31 @@ fn render_sidebar(
                 *active_screen = screen;
             }
         }
+
+        ui.add_space(tokens.section_gap);
+        ui.separator();
+        ui.add_space(tokens.section_gap);
+
+        theme::card_frame().show(ui, |ui| {
+            ui.label(RichText::new("Signed in").size(12.0).color(colors.text_muted));
+            ui.label(RichText::new(&user.username).size(16.0).strong());
+            ui.add_space(8.0);
+
+            if ui
+                .add(
+                    Button::new("Log out")
+                        .frame_when_inactive(true)
+                        .corner_radius(tokens.button_radius)
+                        .min_size(vec2(ui.available_width(), tokens.nav_item_height)),
+                )
+                .clicked()
+            {
+                logout_clicked = true;
+            }
+        });
     });
+
+    logout_clicked
 }
 
 fn render_main(
