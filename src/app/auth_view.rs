@@ -1,6 +1,6 @@
 use eframe::egui::{Button, RichText, TextEdit, Ui, vec2};
 
-use super::{auth::AuthService, db::AppDatabase, models::User};
+use super::auth::{AuthClient, AuthClientError, Session};
 use crate::shared::ui as theme;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -37,9 +37,9 @@ impl AuthView {
         self.message = None;
     }
 
-    pub fn show(&mut self, ui: &mut Ui, db: &AppDatabase) -> Option<User> {
-        let colors = theme::semantic_colors();
-        let tokens = theme::tokens();
+    pub fn show(&mut self, ui: &mut Ui, client: &AuthClient) -> Option<Session> {
+        let colors = theme::colors();
+        let layout = theme::layout();
         let mut signed_in = None;
 
         ui.vertical_centered(|ui| {
@@ -50,14 +50,14 @@ impl AuthView {
                 ui.label(RichText::new("FitTrack").size(28.0).strong());
                 ui.add_space(4.0);
                 ui.label(
-                    RichText::new("Local authentication for the desktop MVP")
+                    RichText::new("JWT auth against the FitTrack server")
                         .size(13.0)
                         .color(colors.text_muted),
                 );
 
-                ui.add_space(tokens.section_gap);
-                mode_switcher(ui, &mut self.mode, colors, tokens);
-                ui.add_space(tokens.section_gap);
+                ui.add_space(layout.section_gap);
+                mode_switcher(ui, &mut self.mode, colors, layout);
+                ui.add_space(layout.section_gap);
 
                 field(ui, "Username", |ui| {
                     ui.add(TextEdit::singleline(&mut self.username).desired_width(f32::INFINITY));
@@ -83,42 +83,34 @@ impl AuthView {
                     });
                 }
 
-                ui.add_space(tokens.section_gap);
+                ui.add_space(layout.section_gap);
 
-                let button_label = if self.mode == AuthMode::Login {
-                    "Log in"
-                } else {
-                    "Create account"
-                };
+                let button_label =
+                    if self.mode == AuthMode::Login { "Log in" } else { "Create account" };
 
                 let submit = ui.add(
                     Button::new(button_label)
-                        .min_size(vec2(ui.available_width(), tokens.nav_item_height))
-                        .corner_radius(tokens.button_radius),
+                        .min_size(vec2(ui.available_width(), layout.nav_item_height))
+                        .corner_radius(layout.button_radius),
                 );
 
                 if submit.clicked() {
                     let result = match self.mode {
-                        AuthMode::Login => {
-                            AuthService::login(db, &self.username, &self.password)
+                        AuthMode::Login => client.login(&self.username, &self.password),
+                        AuthMode::Register => {
+                            client.register(&self.username, &self.password, &self.confirm_password)
                         }
-                        AuthMode::Register => AuthService::register(
-                            db,
-                            &self.username,
-                            &self.password,
-                            &self.confirm_password,
-                        ),
                     };
 
                     match result {
-                        Ok(user) => {
-                            self.message = Some(format!("Signed in as {}", user.username));
+                        Ok(auth) => {
+                            self.message = Some(format!("Signed in as {}", auth.user.username));
                             self.password.clear();
                             self.confirm_password.clear();
-                            signed_in = Some(user);
+                            signed_in = Some(Session::from_auth(auth));
                         }
                         Err(error) => {
-                            self.message = Some(error.to_string());
+                            self.message = Some(display_error(error));
                         }
                     }
                 }
@@ -134,20 +126,24 @@ impl AuthView {
     }
 }
 
-fn mode_switcher(ui: &mut Ui, mode: &mut AuthMode, colors: theme::SemanticColors, tokens: theme::UiTokens) {
+fn display_error(error: AuthClientError) -> String {
+    error.to_string()
+}
+
+fn mode_switcher(ui: &mut Ui, mode: &mut AuthMode, colors: theme::Colors, layout: theme::Layout) {
     ui.horizontal(|ui| {
         let login = ui.add(
             Button::selectable(*mode == AuthMode::Login, "Log in")
                 .frame_when_inactive(true)
-                .corner_radius(tokens.button_radius)
-                .min_size(vec2(120.0, tokens.nav_item_height)),
+                .corner_radius(layout.button_radius)
+                .min_size(vec2(120.0, layout.nav_item_height)),
         );
 
         let register = ui.add(
             Button::selectable(*mode == AuthMode::Register, "Register")
                 .frame_when_inactive(true)
-                .corner_radius(tokens.button_radius)
-                .min_size(vec2(120.0, tokens.nav_item_height)),
+                .corner_radius(layout.button_radius)
+                .min_size(vec2(120.0, layout.nav_item_height)),
         );
 
         if login.clicked() {
@@ -161,7 +157,7 @@ fn mode_switcher(ui: &mut Ui, mode: &mut AuthMode, colors: theme::SemanticColors
 
     ui.add_space(4.0);
     ui.label(
-        RichText::new("Use a local username and password. Data stays in SQLite.")
+        RichText::new("The desktop app talks to the axum server over HTTP.")
             .size(12.0)
             .color(colors.text_muted),
     );
