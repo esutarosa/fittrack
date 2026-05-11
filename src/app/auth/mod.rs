@@ -93,14 +93,12 @@ impl AuthClient {
         token: &str,
         title: &str,
         workout_date: &str,
-        notes: Option<&str>,
     ) -> Result<WorkoutDto, AuthClientError> {
         self.http.post(
             "/workouts",
             &CreateWorkoutRequest {
                 title: title.to_owned(),
                 workout_date: workout_date.to_owned(),
-                notes: notes.map(str::to_owned),
             },
             Some(token),
         )
@@ -112,14 +110,12 @@ impl AuthClient {
         workout_id: i64,
         title: &str,
         workout_date: &str,
-        notes: Option<&str>,
     ) -> Result<WorkoutDto, AuthClientError> {
         self.http.patch(
             &format!("/workouts/{workout_id}"),
             &UpdateWorkoutRequest {
                 title: title.to_owned(),
                 workout_date: workout_date.to_owned(),
-                notes: notes.map(str::to_owned),
             },
             Some(token),
         )

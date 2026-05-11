@@ -1,6 +1,4 @@
-use eframe::egui::{
-    Align, Color32, CornerRadius, FontId, Frame, Margin, RichText, Sense, TextEdit, Ui, vec2,
-};
+use eframe::egui::{Align, Color32, FontId, Margin, RichText, Sense, TextEdit, Ui, vec2};
 
 use crate::shared::i18n::{AppLanguage, AuthStrings, auth_strings};
 use crate::shared::icons::{paint_eye, paint_eye_off};
@@ -73,47 +71,33 @@ pub(super) fn password_input(
     layout: theme::Layout,
     icon_color: Color32,
 ) {
-    let field_frame = Frame::new()
-        .fill(ui.visuals().widgets.noninteractive.bg_fill)
-        .stroke(ui.visuals().widgets.noninteractive.bg_stroke)
-        .corner_radius(CornerRadius::same(layout.button_radius))
-        .inner_margin(Margin::symmetric(layout.input_padding_x, 0));
+    ui.horizontal(|ui| {
+        ui.spacing_mut().item_spacing.x = 8.0;
+        let field_width =
+            (ui.available_width() - layout.icon_button_size - ui.spacing().item_spacing.x).max(0.0);
 
-    ui.allocate_ui_with_layout(
-        vec2(ui.available_width(), layout.input_height),
-        eframe::egui::Layout::left_to_right(Align::Center),
-        |ui| {
-            field_frame.show(ui, |ui| {
-                ui.spacing_mut().item_spacing.x = 8.0;
-                let field_width =
-                    (ui.available_width() - layout.icon_button_size - ui.spacing().item_spacing.x)
-                        .max(0.0);
+        ui.add_sized(
+            vec2(field_width, layout.input_height),
+            TextEdit::singleline(value)
+                .font(FontId::proportional(layout.input_font_size))
+                .horizontal_align(Align::LEFT)
+                .vertical_align(Align::Center)
+                .margin(Margin::symmetric(layout.input_padding_x, 0))
+                .password(!*reveal),
+        );
 
-                ui.add_sized(
-                    vec2(field_width, layout.input_height),
-                    TextEdit::singleline(value)
-                        .frame(false)
-                        .font(FontId::proportional(layout.input_font_size))
-                        .horizontal_align(Align::LEFT)
-                        .vertical_align(Align::Center)
-                        .margin(Margin::symmetric(0, 0))
-                        .password(!*reveal),
-                );
+        let response = ui.allocate_response(
+            vec2(layout.icon_button_size, layout.icon_button_size),
+            Sense::click(),
+        );
+        if response.clicked() {
+            *reveal = !*reveal;
+        }
 
-                let response = ui.allocate_response(
-                    vec2(layout.icon_button_size, layout.icon_button_size),
-                    Sense::click(),
-                );
-                if response.clicked() {
-                    *reveal = !*reveal;
-                }
-
-                if *reveal {
-                    paint_eye(ui, &response, icon_color);
-                } else {
-                    paint_eye_off(ui, &response, icon_color);
-                }
-            });
-        },
-    );
+        if *reveal {
+            paint_eye(ui, &response, icon_color);
+        } else {
+            paint_eye_off(ui, &response, icon_color);
+        }
+    });
 }

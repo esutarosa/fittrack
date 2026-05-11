@@ -112,13 +112,15 @@ fn show_card(
         ui.set_min_width(content_width);
         ui.set_max_width(content_width);
         ui.add_space(12.0);
-        ui.allocate_ui(vec2(content_width, layout.input_height), |ui| {
-            let toggle_width = 52.0 * 2.0 + ui.spacing().item_spacing.x;
-            let side_space = ((content_width - toggle_width) * 0.5).max(0.0);
-            ui.add_space(side_space);
-            theme::language_toggle(ui, language, layout);
+        ui.horizontal(|ui| {
+            ui.with_layout(
+                eframe::egui::Layout::right_to_left(eframe::egui::Align::Center),
+                |ui| {
+                    theme::language_toggle(ui, language);
+                },
+            );
         });
-        ui.add_space(12.0);
+        ui.add_space(20.0);
         ui.vertical_centered(|ui| {
             ui.label(RichText::new("FitTrack").size(30.0).strong());
             ui.add_space(8.0);
@@ -146,7 +148,6 @@ fn show_card(
         });
 
         if view.mode == AuthMode::Register {
-            ui.add_space(8.0);
             field(ui, strings.confirm_password_label, |ui| {
                 password_input(
                     ui,
