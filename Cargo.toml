@@ -9,4 +9,5 @@ argon2 = "0.5"
 chrono = { version = "0.4", default-features = true }
 eframe = "0.34"
 egui_plot = "0.35"
+rand_core = { version = "0.6.4", features = ["getrandom"] }
 rusqlite = { version = "0.39", features = ["bundled", "chrono"] }
