@@ -1,4 +1,3 @@
-/target
+target
 .git
 .DS_Store
-.env

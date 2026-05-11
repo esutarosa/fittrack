@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: fittrack
+      POSTGRES_USER: fittrack
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fittrack -d fittrack"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "7432:5432"
+    volumes:
+      - fittrack_pgdata:/var/lib/postgresql
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      FITTRACK_SERVER_ADDR: 0.0.0.0:7272
+      DATABASE_URL: postgres://fittrack:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@db:5432/fittrack
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
+      JWT_TTL_SECONDS: 604800
+    ports:
+      - "7272:7272"
+
+volumes:
+  fittrack_pgdata:

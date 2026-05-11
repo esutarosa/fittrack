@@ -2,12 +2,31 @@
 name = "fittrack"
 version = "0.1.0"
 edition = "2024"
+default-run = "fittrack"
 
 [dependencies]
 anyhow = "1"
 argon2 = "0.5"
-chrono = { version = "0.4", default-features = true }
-eframe = "0.34"
-egui_plot = "0.35"
-rand_core = { version = "0.6.4", features = ["getrandom"] }
-rusqlite = { version = "0.39", features = ["bundled", "chrono"] }
+axum = "0.8"
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+dotenvy = "0.15"
+jsonwebtoken = { version = "10", features = ["rust_crypto"] }
+rand = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sqlx = { version = "0.8", features = [
+  "chrono",
+  "macros",
+  "postgres",
+  "runtime-tokio-rustls",
+] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tower-http = { version = "0.6", features = ["trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+[target.'cfg(not(target_os = "linux"))'.dependencies]
+eframe = { version = "0.33", default-features = false, features = [
+  "default_fonts",
+  "glow",
+] }
