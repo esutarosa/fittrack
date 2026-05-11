@@ -1,6 +1,7 @@
 mod screen;
+mod shell;
 
-use eframe::egui::{self, RichText};
+use eframe::egui;
 
 use crate::shared::ui as theme;
 
@@ -31,18 +32,6 @@ impl eframe::App for FitTrackApp {
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        let colors = theme::semantic_colors();
-
-        egui::CentralPanel::default()
-            .frame(theme::page_frame())
-            .show_inside(ui, |ui| {
-                ui.add_space(24.0);
-                ui.label(RichText::new(self.active_screen.title()).size(30.0).strong());
-                ui.label(
-                    RichText::new(self.active_screen.description())
-                        .size(13.0)
-                        .color(colors.text_muted),
-                );
-            });
+        shell::render_shell(ui, &mut self.active_screen);
     }
 }
