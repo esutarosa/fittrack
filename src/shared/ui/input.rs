@@ -72,7 +72,7 @@ pub fn multiline(ui: &mut Ui, value: &mut String, rows: usize) {
     });
 }
 
-fn input_frame() -> Frame {
+pub fn input_frame() -> Frame {
     let colors = colors();
     let layout = layout();
 
