@@ -37,12 +37,12 @@ pub async fn init_schema(pool: &PgPool) -> Result<(), ApiError> {
             user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
             title TEXT NOT NULL,
             workout_date DATE NOT NULL,
-            notes TEXT,
             created_at TIMESTAMP NOT NULL DEFAULT NOW()
         )
         "#,
     )
     .await?;
+    execute(pool, "ALTER TABLE workouts DROP COLUMN IF EXISTS notes").await?;
     execute(
         pool,
         r#"

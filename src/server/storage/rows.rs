@@ -50,7 +50,6 @@ pub struct WorkoutRow {
     pub user_id: i64,
     pub title: String,
     pub workout_date: NaiveDate,
-    pub notes: Option<String>,
     pub created_at: NaiveDateTime,
 }
 
@@ -60,7 +59,6 @@ impl WorkoutRow {
             id: self.id,
             title: self.title.clone(),
             workout_date: format_date(self.workout_date),
-            notes: self.notes.clone(),
             created_at: format_datetime(self.created_at),
         }
     }

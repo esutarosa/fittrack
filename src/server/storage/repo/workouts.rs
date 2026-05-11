@@ -10,20 +10,18 @@ pub async fn create_workout(
     user_id: i64,
     title: &str,
     workout_date: NaiveDate,
-    notes: Option<&str>,
 ) -> Result<WorkoutRow, ApiError> {
     internal(
         sqlx::query_as::<_, WorkoutRow>(
             r#"
-            INSERT INTO workouts (user_id, title, workout_date, notes)
-            VALUES ($1, $2, $3, $4)
-            RETURNING id, user_id, title, workout_date, notes, created_at
+            INSERT INTO workouts (user_id, title, workout_date)
+            VALUES ($1, $2, $3)
+            RETURNING id, user_id, title, workout_date, created_at
             "#,
         )
         .bind(user_id)
         .bind(title)
         .bind(workout_date)
-        .bind(notes)
         .fetch_one(pool)
         .await,
     )
@@ -33,7 +31,7 @@ pub async fn list_workouts(pool: &PgPool, user_id: i64) -> Result<Vec<WorkoutRow
     internal(
         sqlx::query_as::<_, WorkoutRow>(
             r#"
-            SELECT id, user_id, title, workout_date, notes, created_at
+            SELECT id, user_id, title, workout_date, created_at
             FROM workouts
             WHERE user_id = $1
             ORDER BY workout_date DESC, id DESC
@@ -53,7 +51,7 @@ pub async fn find_workout(
     internal(
         sqlx::query_as::<_, WorkoutRow>(
             r#"
-            SELECT id, user_id, title, workout_date, notes, created_at
+            SELECT id, user_id, title, workout_date, created_at
             FROM workouts
             WHERE user_id = $1 AND id = $2
             "#,
@@ -71,22 +69,20 @@ pub async fn update_workout(
     workout_id: i64,
     title: &str,
     workout_date: NaiveDate,
-    notes: Option<&str>,
 ) -> Result<Option<WorkoutRow>, ApiError> {
     internal(
         sqlx::query_as::<_, WorkoutRow>(
             r#"
             UPDATE workouts
-            SET title = $3, workout_date = $4, notes = $5
+            SET title = $3, workout_date = $4
             WHERE user_id = $1 AND id = $2
-            RETURNING id, user_id, title, workout_date, notes, created_at
+            RETURNING id, user_id, title, workout_date, created_at
             "#,
         )
         .bind(user_id)
         .bind(workout_id)
         .bind(title)
         .bind(workout_date)
-        .bind(notes)
         .fetch_optional(pool)
         .await,
     )
@@ -102,7 +98,7 @@ pub async fn delete_workout(
             r#"
             DELETE FROM workouts
             WHERE user_id = $1 AND id = $2
-            RETURNING id, user_id, title, workout_date, notes, created_at
+            RETURNING id, user_id, title, workout_date, created_at
             "#,
         )
         .bind(user_id)

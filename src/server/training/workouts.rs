@@ -33,7 +33,6 @@ pub async fn create_workout(
         user_id,
         &request.title,
         parse_workout_date(&request.workout_date)?,
-        request.notes.as_deref(),
     )
     .await?;
     Ok(Json(row.to_dto()))
@@ -52,7 +51,6 @@ pub async fn update_workout(
         workout_id,
         &request.title,
         parse_workout_date(&request.workout_date)?,
-        request.notes.as_deref(),
     )
     .await?;
     Ok(Json(row.ok_or_else(|| ApiError::not_found("Workout not found"))?.to_dto()))

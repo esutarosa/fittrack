@@ -56,7 +56,6 @@ pub struct WorkoutDto {
     pub id: i64,
     pub title: String,
     pub workout_date: String,
-    pub notes: Option<String>,
     pub created_at: String,
 }
 
@@ -64,14 +63,12 @@ pub struct WorkoutDto {
 pub struct CreateWorkoutRequest {
     pub title: String,
     pub workout_date: String,
-    pub notes: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct UpdateWorkoutRequest {
     pub title: String,
     pub workout_date: String,
-    pub notes: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
