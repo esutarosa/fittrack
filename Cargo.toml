@@ -4,3 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow = "1"
+argon2 = "0.5"
+chrono = { version = "0.4", default-features = true }
+eframe = "0.34"
+egui_plot = "0.35"
+rusqlite = { version = "0.39", features = ["bundled", "chrono"] }
