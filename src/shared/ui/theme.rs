@@ -1,17 +1,17 @@
 use eframe::egui::{self, CornerRadius, Margin, Stroke, Vec2, Visuals};
 
-use super::{semantic_colors, tokens};
+use super::{colors, layout};
 
 pub fn apply(ctx: &egui::Context) {
-    let colors = semantic_colors();
-    let tokens = tokens();
+    let colors = colors();
+    let layout = layout();
     let mut visuals = Visuals::dark();
 
     visuals.window_fill = colors.background;
     visuals.panel_fill = colors.surface;
     visuals.window_stroke = Stroke::new(1.0, colors.border);
-    visuals.window_corner_radius = CornerRadius::same(tokens.window_radius);
-    visuals.menu_corner_radius = CornerRadius::same(tokens.card_radius);
+    visuals.window_corner_radius = CornerRadius::same(layout.window_radius);
+    visuals.menu_corner_radius = CornerRadius::same(layout.card_radius);
     visuals.override_text_color = Some(colors.text_primary);
     visuals.hyperlink_color = colors.accent;
     visuals.selection.bg_fill = colors.accent_active;
@@ -27,13 +27,13 @@ pub fn apply(ctx: &egui::Context) {
     visuals.widgets.active.bg_fill = colors.accent;
     visuals.widgets.active.bg_stroke = Stroke::new(1.0, colors.border);
     visuals.widgets.active.fg_stroke.color = colors.text_primary;
-    visuals.widgets.noninteractive.corner_radius = CornerRadius::same(tokens.card_radius);
-    visuals.widgets.inactive.corner_radius = CornerRadius::same(tokens.button_radius);
-    visuals.widgets.hovered.corner_radius = CornerRadius::same(tokens.button_radius);
-    visuals.widgets.active.corner_radius = CornerRadius::same(tokens.button_radius);
-    visuals.widgets.open.corner_radius = CornerRadius::same(tokens.button_radius);
+    visuals.widgets.noninteractive.corner_radius = CornerRadius::same(layout.card_radius);
+    visuals.widgets.inactive.corner_radius = CornerRadius::same(layout.button_radius);
+    visuals.widgets.hovered.corner_radius = CornerRadius::same(layout.button_radius);
+    visuals.widgets.active.corner_radius = CornerRadius::same(layout.button_radius);
+    visuals.widgets.open.corner_radius = CornerRadius::same(layout.button_radius);
 
-    ctx.global_style_mut(|style| {
+    ctx.style_mut(|style| {
         style.spacing.item_spacing = Vec2::splat(12.0);
         style.spacing.button_padding = Vec2::new(12.0, 8.0);
         style.spacing.window_margin = Margin::same(24);

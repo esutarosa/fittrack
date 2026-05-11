@@ -1,31 +1,31 @@
 use eframe::egui::{CornerRadius, Frame, Margin, Stroke};
 
-use super::{semantic_colors, tokens};
+use super::{colors, layout};
 
 pub fn card_frame() -> Frame {
-    let colors = semantic_colors();
-    let tokens = tokens();
+    let colors = colors();
+    let layout = layout();
 
     Frame::new()
         .fill(colors.surface_elevated)
         .stroke(Stroke::new(1.0, colors.border))
-        .corner_radius(CornerRadius::same(tokens.card_radius))
-        .inner_margin(Margin::same(tokens.card_padding))
+        .corner_radius(CornerRadius::same(layout.card_radius))
+        .inner_margin(Margin::same(layout.card_padding))
 }
 
 pub fn sidebar_frame() -> Frame {
-    let colors = semantic_colors();
-    let tokens = tokens();
+    let colors = colors();
+    let layout = layout();
 
     Frame::new()
         .fill(colors.surface)
         .stroke(Stroke::new(1.0, colors.border))
-        .corner_radius(CornerRadius::same(tokens.window_radius))
-        .inner_margin(Margin::same(tokens.card_padding))
+        .corner_radius(CornerRadius::same(layout.window_radius))
+        .inner_margin(Margin::same(layout.card_padding))
 }
 
 pub fn page_frame() -> Frame {
-    let colors = semantic_colors();
+    let colors = colors();
 
     Frame::new().fill(colors.background).stroke(Stroke::NONE)
 }

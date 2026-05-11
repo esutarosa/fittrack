@@ -1,5 +1,5 @@
 #[derive(Clone, Copy)]
-pub struct UiTokens {
+pub struct Layout {
     pub sidebar_width: f32,
     pub page_padding: f32,
     pub section_gap: f32,
@@ -10,8 +10,8 @@ pub struct UiTokens {
     pub window_radius: u8,
 }
 
-pub fn tokens() -> UiTokens {
-    UiTokens {
+pub fn layout() -> Layout {
+    Layout {
         sidebar_width: 264.0,
         page_padding: 24.0,
         section_gap: 16.0,
