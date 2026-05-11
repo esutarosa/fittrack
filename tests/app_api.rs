@@ -4,7 +4,7 @@ use std::sync::{LazyLock, Mutex};
 use std::thread;
 
 use fittrack::app::auth::AuthClient;
-use fittrack::shared::contracts::{ApiErrorResponse, AuthResponse, UserDto};
+use fittrack::shared::contracts::{ApiErrorResponse, AuthResponse, ExerciseDto, UserDto};
 
 static ENV_GUARD: LazyLock<Mutex<()>> = LazyLock::new(|| Mutex::new(()));
 
@@ -74,6 +74,77 @@ fn login_surfaces_server_error() {
     assert_eq!(error.to_string(), "Invalid username or password");
 }
 
+#[test]
+fn update_exercise_sends_patch_request() {
+    let _guard = ENV_GUARD.lock().expect("env guard");
+    let listener = TcpListener::bind("127.0.0.1:0").expect("listener");
+    let port = listener.local_addr().expect("addr").port();
+
+    thread::spawn(move || {
+        let (mut stream, _) = listener.accept().expect("accept");
+        let (request_line, headers, body) = read_request(&mut stream);
+
+        assert!(request_line.contains("PATCH /api/exercises/42 HTTP/1.1"));
+        assert!(headers.contains("Authorization: Bearer token-123"));
+        assert!(body.contains("\"name\":\"Bench Press\""));
+        assert!(body.contains("\"muscle_group\":\"Chest\""));
+
+        let response = ExerciseDto {
+            id: 42,
+            name: "Bench Press".to_owned(),
+            muscle_group: "Chest".to_owned(),
+            created_at: "2026-05-11T00:00:00".to_owned(),
+        };
+        let response_body = serde_json::to_string(&response).expect("json");
+        write_response(&mut stream, 200, "OK", &response_body);
+    });
+
+    unsafe {
+        std::env::set_var("FITTRACK_API_URL", format!("http://127.0.0.1:{port}/api"));
+    }
+
+    let client = AuthClient::from_env().expect("client");
+    let exercise =
+        client.update_exercise("token-123", 42, "Bench Press", "Chest").expect("update exercise");
+
+    assert_eq!(exercise.id, 42);
+    assert_eq!(exercise.name, "Bench Press");
+}
+
+#[test]
+fn delete_exercise_sends_delete_request() {
+    let _guard = ENV_GUARD.lock().expect("env guard");
+    let listener = TcpListener::bind("127.0.0.1:0").expect("listener");
+    let port = listener.local_addr().expect("addr").port();
+
+    thread::spawn(move || {
+        let (mut stream, _) = listener.accept().expect("accept");
+        let (request_line, headers, body) = read_request(&mut stream);
+
+        assert!(request_line.contains("DELETE /api/exercises/42 HTTP/1.1"));
+        assert!(headers.contains("Authorization: Bearer token-123"));
+        assert!(body.is_empty());
+
+        let response = ExerciseDto {
+            id: 42,
+            name: "Bench Press".to_owned(),
+            muscle_group: "Chest".to_owned(),
+            created_at: "2026-05-11T00:00:00".to_owned(),
+        };
+        let response_body = serde_json::to_string(&response).expect("json");
+        write_response(&mut stream, 200, "OK", &response_body);
+    });
+
+    unsafe {
+        std::env::set_var("FITTRACK_API_URL", format!("http://127.0.0.1:{port}/api"));
+    }
+
+    let client = AuthClient::from_env().expect("client");
+    let exercise = client.delete_exercise("token-123", 42).expect("delete exercise");
+
+    assert_eq!(exercise.id, 42);
+}
+
 fn read_request(stream: &mut std::net::TcpStream) -> (String, String, String) {
     let mut reader = BufReader::new(stream.try_clone().expect("clone"));
     let mut request_line = String::new();
@@ -93,9 +164,11 @@ fn read_request(stream: &mut std::net::TcpStream) -> (String, String, String) {
         .lines()
         .find_map(|line| line.strip_prefix("Content-Length: "))
         .and_then(|value| value.trim().parse::<usize>().ok())
-        .expect("content length");
+        .unwrap_or(0);
     let mut body = vec![0; content_length];
-    reader.read_exact(&mut body).expect("body");
+    if content_length > 0 {
+        reader.read_exact(&mut body).expect("body");
+    }
 
     (request_line.trim().to_owned(), headers, String::from_utf8(body).expect("utf8"))
 }
