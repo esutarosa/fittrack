@@ -46,6 +46,12 @@ pub struct CreateExerciseRequest {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct UpdateExerciseRequest {
+    pub name: String,
+    pub muscle_group: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WorkoutDto {
     pub id: i64,
     pub title: String,
@@ -62,10 +68,19 @@ pub struct CreateWorkoutRequest {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct UpdateWorkoutRequest {
+    pub title: String,
+    pub workout_date: String,
+    pub notes: Option<String>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WorkoutSetDto {
     pub id: i64,
     pub workout_id: i64,
     pub exercise_id: i64,
+    pub exercise_name: String,
+    pub muscle_group: String,
     pub set_order: i32,
     pub weight: f64,
     pub repetitions: i32,
@@ -78,4 +93,21 @@ pub struct CreateWorkoutSetRequest {
     pub set_order: i32,
     pub weight: f64,
     pub repetitions: i32,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct UpdateWorkoutSetRequest {
+    pub exercise_id: i64,
+    pub set_order: i32,
+    pub weight: f64,
+    pub repetitions: i32,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ProgressRecordDto {
+    pub workout_date: String,
+    pub workout_title: String,
+    pub max_weight: f64,
+    pub max_repetitions: i32,
+    pub total_volume: f64,
 }
